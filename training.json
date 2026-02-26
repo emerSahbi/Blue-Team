@@ -1,0 +1,207 @@
+{
+  "title" : "Blue Team",
+  "description" : "This challenge will teach you how to secure a system from reconnaissance to incident response.",
+  "prerequisites" : [ ],
+  "outcomes" : [ "Incident Response" ],
+  "state" : "UNRELEASED",
+  "show_stepper_bar" : true,
+  "levels" : [ {
+    "title" : "Introduction level",
+    "level_type" : "INFO_LEVEL",
+    "order" : 0,
+    "estimated_duration" : 0,
+    "minimal_possible_solve_time" : null,
+    "content" : "# Welcome to the Blue Team training!\n## This challenge will teach you the steps involved in **securing a system** from reconnaissance to **incident response**.\n\n## Now let's get into the story:\n\n### Ivan learned a valuable lesson when his server was compromised due to his poor security practices. After calling you for help, he realized he needed to implement strong defenses to prevent future attacks. \n### Now, it's your job to step into the shoes of the Blue Team to harden Ivan's server and ensure it is secure against similar pranks (or actual malicious actors). :) "
+  }, {
+    "title" : "Get Access",
+    "level_type" : "ACCESS_LEVEL",
+    "order" : 1,
+    "estimated_duration" : 0,
+    "minimal_possible_solve_time" : null,
+    "passkey" : "start",
+    "cloud_content" : "## Firstly, let's access the **Client machine** we will be using for this training! \n\n### 1. On your right, there should appear a window with a topology, showing available machines and networks.\n - #### You will have access only to the **client** machine (if you don't see the machine right away, try clicking on the switches and the machine should appear)\n - #### In order to access the **client** machine, you will need to **right click** it and then select the option **Open console**.\n - #### Your login credentials for the **client** machine are: -> **ivan** <- with password -> **mainpass** <-\n\n\n### 2. When you login in the **client** machine, you should be able to open the terminal inside of it.\n - #### When you are ready with all of that - type in -> **start** <- in the box below to continue with the training! :)\n",
+    "local_content" : "."
+  }, {
+    "title" : "Initial Assessment",
+    "level_type" : "TRAINING_LEVEL",
+    "order" : 2,
+    "estimated_duration" : 3,
+    "minimal_possible_solve_time" : null,
+    "answer" : "nmap -A 10.1.26.9",
+    "answer_variable_name" : null,
+    "content" : "### Ivan's server is behaving suspiciously, and his access has been locked out. Your mission is to investigate the server's current state and identify potential vulnerabilities. :)\n\n### He told us that his server IP is: -> **10.1.26.9** <-\n\n### Your objective is:\n- #### to execute a command for port scanning\n- #### use an argument for showing **all** open ports, running services and any potential entry points on Ivan's server\n\n\n### The solution for this level is the **full** command for showing port information.",
+    "solution" : "`nmap -A 10.1.26.9` <- the solution",
+    "solution_penalized" : true,
+    "hints" : [ {
+      "title" : "Tools",
+      "content" : "#### With the tool **nmap** we can scan the ports of a machine and learn what services are running on it.",
+      "hint_penalty" : 2,
+      "order" : 0
+    }, {
+      "title" : "Arguments",
+      "content" : "#### We will need to use the argument **-A**, so the tool can show us ALL of the information it could find on the machine.",
+      "hint_penalty" : 1,
+      "order" : 1
+    } ],
+    "incorrect_answer_limit" : 10,
+    "attachments" : [ ],
+    "max_score" : 10,
+    "variant_answers" : false,
+    "reference_solution" : [ ],
+    "mitre_techniques" : [ ],
+    "expected_commands" : [ ],
+    "commands_required" : true
+  }, {
+    "title" : "Regaining Access",
+    "level_type" : "TRAINING_LEVEL",
+    "order" : 3,
+    "estimated_duration" : 5,
+    "minimal_possible_solve_time" : null,
+    "answer" : "ssh backup@10.1.26.9",
+    "answer_variable_name" : null,
+    "content" : "### The **nmap** scan showed us a few, but troublesome vulnerabilities on Ivan's server !! But before with could mitigate them, we will need to login in Ivan's server.\n\n### Fortunately, Ivan has made himself a **backup user** on his server! He is storing a file with its credentials in his **Home directory..** *(which is a bad practice)*\n\n### Your objective is: \n- #### to find the file with credentials on your machine\n- #### use the credentials to ssh in Ivan's server\n\n### The solution is the **full** ssh command for getting access to Ivan's machine.",
+    "solution" : "`cat /home/backup/ser_backup.txt`\n\n`ssh backup@10.1.26.9` <- the solution\n\npassword: b@ckupu5er\n",
+    "solution_penalized" : true,
+    "hints" : [ {
+      "title" : "Logging in",
+      "content" : "#### To login in Ivan's server we will need to use the protocol **ssh**.\n#### The full command consist of - **username@IP address** of the machine",
+      "hint_penalty" : 2,
+      "order" : 2
+    }, {
+      "title" : "Show contents",
+      "content" : "#### In Linux, the command **cat** show us the contents of a file.",
+      "hint_penalty" : 1,
+      "order" : 1
+    }, {
+      "title" : "Backup Credentials",
+      "content" : "#### The backup credentials are stored in a file named **ser_backup.txt** located in **client** machine in /home/backup/ directory.\n",
+      "hint_penalty" : 1,
+      "order" : 0
+    } ],
+    "incorrect_answer_limit" : 10,
+    "attachments" : [ ],
+    "max_score" : 10,
+    "variant_answers" : false,
+    "reference_solution" : [ ],
+    "mitre_techniques" : [ ],
+    "expected_commands" : [ ],
+    "commands_required" : true
+  }, {
+    "title" : "Vulnerability Mitigation",
+    "level_type" : "TRAINING_LEVEL",
+    "order" : 4,
+    "estimated_duration" : 3,
+    "minimal_possible_solve_time" : null,
+    "answer" : "sudo systemctl restart ssh vsftpd",
+    "answer_variable_name" : null,
+    "content" : "### We are in! Good job, now we are able to mitigate the vulnerabilities on Ivan's server.\n\n### Earlier, the **nmap** scan showed us that there are two very important vulnerabilities found on the server: \n\n1. #### Anonymous access is enabled on the FTP server.\n2. #### Root login allowed on the SSH server.\n\n### Your objective is:\n- #### to edit the configuration files of the services\n- #### restart them to apply the changes\n\n### The solution for this level is the **full** command for **restarting system services**, including **privileges** and **both vulnerable services**!  \n",
+    "solution" : "\n`sudo nano /etc/vsftpd.conf`\n\n- Change: anonymous_enable=YES -> anonymous_enable=NO\n\n`sudo nano /etc/ssh/sshd_config`\n\n- Change: PermitRootLogin yes -> PermitRootLogin no\n\n`sudo systemctl restart ssh vsftpd` <- the solution\n",
+    "solution_penalized" : true,
+    "hints" : [ {
+      "title" : "Locate conf file SSH",
+      "content" : "#### To disable the **root login** on SSH, we will need to locate the service's configuration file in the directory /etc/ssh/.\n#### The conf file is named **sshd_config**.\n\n#### The vulnerable line is: **PermitRootLogin=YES**",
+      "hint_penalty" : 1,
+      "order" : 1
+    }, {
+      "title" : "Restarting services",
+      "content" : "#### In order to apply the changes to the configuration files, we will need to restart the services.\n\n#### With the command \n`systemctl restart >service >service `\n#### we can restart multiple services at once.",
+      "hint_penalty" : 2,
+      "order" : 2
+    }, {
+      "title" : "Locate conf file FTP",
+      "content" : "#### To disable the **anonymous access** on the FTP server, we will need to locate the service's configuration file in the directory /etc/.\n#### The conf file is named **vsftpd.conf**.\n\n\n#### The vulnerable line is: **anonymous_enable=YES**",
+      "hint_penalty" : 1,
+      "order" : 0
+    } ],
+    "incorrect_answer_limit" : 10,
+    "attachments" : [ ],
+    "max_score" : 10,
+    "variant_answers" : false,
+    "reference_solution" : [ ],
+    "mitre_techniques" : [ ],
+    "expected_commands" : [ ],
+    "commands_required" : true
+  }, {
+    "title" : "System search",
+    "level_type" : "TRAINING_LEVEL",
+    "order" : 5,
+    "estimated_duration" : 3,
+    "minimal_possible_solve_time" : null,
+    "answer" : "sudo rm passgrabber.sh",
+    "answer_variable_name" : null,
+    "content" : "### Nice, there are no more vulnerabilities on Ivan's server. :)\n### Except that.. You will need to search the system for **malicious files** left by the attacker.\n\n### There are most commonly scripts with an -> **.sh** <- extension.\n\n### Your objective is:\n- #### executing a command for searching Ivan's whole system for malicious files\n- #### if you find any - delete them!\n\n\n### The solution is the **full privileged command** for deleting the malicious file on Ivan's server. \n*(excluding the directory, you should be in it)*",
+    "solution" : "`sudo find / -type f -name \"*.sh\"`\n\n`cd /var/tmp/`\n\n`ls`\n\n`sudo rm passgrabber.sh` <- the solution\n",
+    "solution_penalized" : true,
+    "hints" : [ {
+      "title" : "Search for files",
+      "content" : "#### **sudo find / -type f -name \"*.sh\"**\n\n#### With this command we can: \n\n* #### / : Search the entire filesystem\n* #### -type f : Search for files only\n* #### -name \"*.sh\" : Look for files with .sh extensions\n",
+      "hint_penalty" : 2,
+      "order" : 0
+    }, {
+      "title" : "Deleting files",
+      "content" : "#### With the command **rm** we can delete any file in the system.",
+      "hint_penalty" : 1,
+      "order" : 1
+    } ],
+    "incorrect_answer_limit" : 10,
+    "attachments" : [ ],
+    "max_score" : 10,
+    "variant_answers" : false,
+    "reference_solution" : [ ],
+    "mitre_techniques" : [ ],
+    "expected_commands" : [ ],
+    "commands_required" : true
+  }, {
+    "title" : "Changing password",
+    "level_type" : "TRAINING_LEVEL",
+    "order" : 6,
+    "estimated_duration" : 3,
+    "minimal_possible_solve_time" : null,
+    "answer" : "sudo passwd",
+    "answer_variable_name" : null,
+    "content" : "### Well done, we are one last step to fully securing Ivan's compromised server. :)\n### Lastly we need to change Ivan's server password.\n\n### Your objective is:\n- #### changing Ivan's server password\n\n### The solution for this last level is the **privileged command** for changing a password.",
+    "solution" : "`sudo passwd`",
+    "solution_penalized" : true,
+    "hints" : [ {
+      "title" : "Changing password",
+      "content" : "#### In Linux, the command **passwd** can change a user's password.",
+      "hint_penalty" : 2,
+      "order" : 0
+    }, {
+      "title" : "Privileged Access",
+      "content" : "#### When we want to include a user's privileges when executing a command - we add **sudo** at the beginning ",
+      "hint_penalty" : 0,
+      "order" : 1
+    } ],
+    "incorrect_answer_limit" : 10,
+    "attachments" : [ ],
+    "max_score" : 10,
+    "variant_answers" : false,
+    "reference_solution" : [ ],
+    "mitre_techniques" : [ ],
+    "expected_commands" : [ ],
+    "commands_required" : true
+  }, {
+    "title" : "Finish line",
+    "level_type" : "TRAINING_LEVEL",
+    "order" : 7,
+    "estimated_duration" : 1,
+    "minimal_possible_solve_time" : null,
+    "answer" : "good job",
+    "answer_variable_name" : null,
+    "content" : "# Good job!\n## This challenge highlights the defensive measures necessary to secure a compromised server. :)\n\n## The training should have taught you about:\n\n* ### Assessing and documenting vulnerabilities\n* ### Regaining control of a compromised account\n* ### Hardening services like FTP and SSH\n* ### The importance of secure passwords\n\n### flag: **good job**\n",
+    "solution" : "good job\n\n:)",
+    "solution_penalized" : true,
+    "hints" : [ ],
+    "incorrect_answer_limit" : 10,
+    "attachments" : [ ],
+    "max_score" : 1,
+    "variant_answers" : false,
+    "reference_solution" : [ ],
+    "mitre_techniques" : [ ],
+    "expected_commands" : [ ],
+    "commands_required" : true
+  } ],
+  "estimated_duration" : 18,
+  "variant_sandboxes" : false
+}
