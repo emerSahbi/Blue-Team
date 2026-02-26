@@ -1,0 +1,8 @@
+---
+# Attacker role: simulated adversary (not accessed by student)
+
+- name: Create alias for server
+  lineinfile:
+    path: /etc/hosts
+    line: '10.1.26.9 server'
+...

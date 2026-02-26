@@ -1,0 +1,33 @@
+---
+# Client role: student's machine for Blue Team training
+
+- name: Create alias for server
+  lineinfile:
+    path: /etc/hosts
+    line: '10.1.26.9 server'
+
+- name: Install tools
+  apt:
+    pkg:
+      - nmap
+      - net-tools
+      - nano
+    update_cache: yes
+
+- name: Ensure /home/backup directory exists
+  file:
+    path: /home/backup
+    state: directory
+    owner: root
+    mode: '0755'
+
+- name: Create server backup credentials file
+  copy:
+    dest: /home/backup/ser_backup.txt
+    content: |
+      Server backup account credentials:
+      Username: backup
+      Password: b@ckupu5er
+    owner: root
+    mode: '0644'
+...

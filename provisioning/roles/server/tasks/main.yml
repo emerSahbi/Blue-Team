@@ -1,0 +1,155 @@
+---
+# Server role: Ivan's compromised server with intentional vulnerabilities
+
+- name: Add user ivan
+  user:
+    name: ivan
+    password: "{{ 'iluvfilms' | password_hash('sha512') }}"
+    create_home: yes
+    shell: /bin/bash
+
+- name: Grant ivan passwordless sudo
+  copy:
+    content: |
+      ivan ALL=(ALL) NOPASSWD:ALL
+    dest: /etc/sudoers.d/ivan
+    owner: root
+    group: root
+    mode: '0440'
+
+- name: Add backup user for remote access
+  user:
+    name: backup
+    password: "{{ 'b@ckupu5er' | password_hash('sha512') }}"
+    create_home: yes
+    shell: /bin/bash
+    groups: sudo
+    append: yes
+
+- name: Grant backup passwordless sudo
+  copy:
+    content: |
+      backup ALL=(ALL) NOPASSWD:ALL
+    dest: /etc/sudoers.d/backup
+    owner: root
+    group: root
+    mode: '0440'
+
+- name: Create alias for client
+  lineinfile:
+    path: /etc/hosts
+    line: '10.1.27.4 client'
+
+- name: Install packages
+  apt:
+    pkg:
+      - vsftpd
+      - openssh-server
+      - net-tools
+      - nano
+    state: present
+    update_cache: yes
+
+# FTP setup (anonymous access = vulnerability for student to fix)
+- name: Create FTP user
+  user:
+    name: ftpuser
+    password: "{{ 'ftp_password123' | password_hash('sha512') }}"
+    shell: /usr/sbin/nologin
+    home: /var/ftp
+    state: present
+
+- name: Ensure FTP directory exists
+  file:
+    path: /var/ftp
+    state: directory
+    owner: ftpuser
+    group: ftpuser
+    mode: '0755'
+
+- name: Deploy backup.txt to FTP directory
+  copy:
+    src: backup.txt
+    dest: /var/ftp/backup.txt
+    owner: ftpuser
+    group: ftpuser
+    mode: '0644'
+
+- name: Deploy CatWars3 movie to FTP directory
+  copy:
+    src: CatWars3.mov
+    dest: /var/ftp/CatWars3.mov
+    owner: ftpuser
+    group: ftpuser
+    mode: '0644'
+
+- name: Deploy vsftpd configuration with anonymous access enabled
+  copy:
+    src: vsftpd.conf
+    dest: /etc/vsftpd.conf
+    owner: root
+    mode: '0644'
+  notify: Restart FTP
+
+# SSH vulnerabilities setup
+- name: Remove sshd drop-in configs
+  shell: rm -f /etc/ssh/sshd_config.d/*.conf
+
+- name: Comment out Include directive
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^\s*Include\s+'
+    line: '# Include /etc/ssh/sshd_config.d/*.conf'
+
+- name: Configure SSH to allow root login (vulnerability for student to fix)
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?PermitRootLogin'
+    line: 'PermitRootLogin yes'
+    state: present
+
+- name: Ensure PasswordAuthentication yes
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?\s*PasswordAuthentication\s+'
+    line: 'PasswordAuthentication yes'
+
+- name: Ensure KbdInteractiveAuthentication yes
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?\s*KbdInteractiveAuthentication\s+'
+    line: 'KbdInteractiveAuthentication yes'
+
+- name: Disable cloud-init SSH management
+  copy:
+    dest: /etc/cloud/cloud.cfg.d/99-disable-ssh.cfg
+    content: |
+      ssh_pwauth: true
+      ssh:
+        emit_keys_to_console: false
+    owner: root
+    mode: '0644'
+
+- name: Prevent cloud-init from overriding sshd config
+  shell: rm -f /etc/ssh/sshd_config.d/*.conf
+
+# Malicious script (for student to find and delete in Level 5)
+- name: Place malicious script left by attacker
+  copy:
+    dest: /var/tmp/passgrabber.sh
+    content: |
+      #!/bin/bash
+      # Credential harvesting script
+      cat /etc/shadow > /tmp/.shadow_dump 2>/dev/null
+    owner: root
+    mode: '0755'
+
+- name: Restart services
+  service:
+    name: "{{ item }}"
+    state: restarted
+    enabled: yes
+  with_items:
+    - vsftpd
+    - ssh
+...
